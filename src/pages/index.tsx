@@ -1,25 +1,20 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import { DataGrid, type GridColDef, type GridValueGetterParams } from '@mui/x-data-grid';
+import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 import { api } from "~/utils/api";
 import { useState } from "react";
 import AppBar from "~/lib/components/AppBar";
 import ProtectedRoute from "~/lib/ProtectedRoute";
 
 const Home: NextPage = () => {
-  const { data: books, isInitialLoading } = api.getBooks.useQuery()
+  const { data: books } = api.getBooks.useQuery()
 
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<{ [key: string]: boolean }>({ id: false })
 
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
 
-  const [selection, setSelection] = useState<string[]>([])
+  const [, setSelection] = useState<string[]>([])
 
   return (
     <ProtectedRoute>
