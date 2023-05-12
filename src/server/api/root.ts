@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
 
 /**
  * This is the primary router for your server.
@@ -7,7 +7,7 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  getBooks: protectedProcedure.query(({ ctx }) => {
+  getBooks: protectedProcedure.query(async ({ ctx }) => {
     return ctx.prisma.book.findMany();
   }),
   addBook: protectedProcedure.input(z.object({

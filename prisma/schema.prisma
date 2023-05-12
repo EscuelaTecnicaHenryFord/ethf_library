@@ -18,7 +18,7 @@ datasource db {
 model Book {
     id String @id @default(cuid())
 
-    code   Int @unique
+    code   Int    @unique
     title  String
     author String
     genre  String
@@ -38,11 +38,12 @@ model Account {
     refresh_token     String? // @db.Text
     access_token      String? // @db.Text
     expires_at        Int?
-    token_type        String?
-    scope             String?
-    id_token          String? // @db.Text
-    session_state     String?
-    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    ext_expires_in    Int?
+    token_type    String?
+    scope         String?
+    id_token      String? // @db.Text
+    session_state String?
+    user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([provider, providerAccountId])
 }
