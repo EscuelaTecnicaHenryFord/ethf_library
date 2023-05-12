@@ -72,20 +72,12 @@ export default function AppBar() {
                         <ListItem disablePadding onClick={() => void router.push('/')}>
                             <ListItemButton>
                                 <ListItemIcon>
-                                    <HomeIcon />
-                                </ListItemIcon>
-                                <ListItemText primary={"Inicio"} />
-                            </ListItemButton>
-                        </ListItem>
-                        <ListItem disablePadding onClick={() => void router.push('/comunicaciones')}>
-                            <ListItemButton>
-                                <ListItemIcon>
                                     <ListAltIcon />
                                 </ListItemIcon>
                                 <ListItemText primary={"Libros"} />
                             </ListItemButton>
                         </ListItem>
-                        <ListItem disablePadding onClick={() => void router.push('/nueva-comunicacion')}>
+                        <ListItem disablePadding onClick={() => void 0}>
                             <ListItemButton>
                                 <ListItemIcon>
                                     <AddIcon />
@@ -127,7 +119,7 @@ export default function AppBar() {
                             component="div"
                             sx={{ flexGrow: 1 }}
                         >
-                            Comunicaciones
+                            Biblioteca
                         </Typography>
                         <Avatar {...stringAvatar(session?.user.name || 'H F')} />
                         {/* <IconButton
