@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
@@ -16,16 +17,22 @@ export const appRouter = createTRPCRouter({
     author: z.string(),
     genre: z.string(),
     editor: z.string(),
-  })).mutation(({ ctx, input }) => {
-    return ctx.prisma.book.create({
-      data: {
-        code: input.code,
-        title: input.title,
-        author: input.author,
-        genre: input.genre,
-        editor: input.editor,
-      }
-    })
+    location: z.string(),
+  })).mutation(async ({ ctx, input }) => {
+    try {
+      return await ctx.prisma.book.create({
+        data: {
+          code: input.code,
+          title: input.title,
+          author: input.author,
+          genre: input.genre,
+          editor: input.editor,
+          location: input.location,
+        }
+      })
+    } catch (error) {
+      catchPrismaConstrainError(error as { code?: string });
+    }
   }),
   updateBook: protectedProcedure.input(z.object({
     id: z.string(),
@@ -34,19 +41,25 @@ export const appRouter = createTRPCRouter({
     author: z.string(),
     genre: z.string(),
     editor: z.string(),
-  })).mutation(({ ctx, input }) => {
-    return ctx.prisma.book.update({
-      where: {
-        id: input.id
-      },
-      data: {
-        code: input.code,
-        title: input.title,
-        author: input.author,
-        genre: input.genre,
-        editor: input.editor,
-      }
-    })
+    location: z.string(),
+  })).mutation(async ({ ctx, input }) => {
+    try {
+      return await ctx.prisma.book.update({
+        where: {
+          id: input.id
+        },
+        data: {
+          code: input.code,
+          title: input.title,
+          author: input.author,
+          genre: input.genre,
+          editor: input.editor,
+          location: input.location,
+        }
+      })
+    } catch (error) {
+      catchPrismaConstrainError(error as { code?: string });
+    }
   }),
   deleteBook: protectedProcedure.input(z.object({
     id: z.string(),
@@ -61,3 +74,12 @@ export const appRouter = createTRPCRouter({
 
 // export type definition of API
 export type AppRouter = typeof appRouter;
+
+function catchPrismaConstrainError(error: { code?: string }) {
+  if (error.code === "P2002") {
+    throw new TRPCError({
+      code: "CONFLICT",
+    });
+  }
+  throw error;
+}

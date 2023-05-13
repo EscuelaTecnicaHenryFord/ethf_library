@@ -18,11 +18,12 @@ datasource db {
 model Book {
     id String @id @default(cuid())
 
-    code   Int    @unique
-    title  String
-    author String
-    genre  String
-    editor String
+    code     Int    @unique
+    title    String
+    author   String @default("")
+    genre    String @default("")
+    editor   String @default("")
+    location String @default("")
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -39,11 +40,11 @@ model Account {
     access_token      String? // @db.Text
     expires_at        Int?
     ext_expires_in    Int?
-    token_type    String?
-    scope         String?
-    id_token      String? // @db.Text
-    session_state String?
-    user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    token_type        String?
+    scope             String?
+    id_token          String? // @db.Text
+    session_state     String?
+    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([provider, providerAccountId])
 }
