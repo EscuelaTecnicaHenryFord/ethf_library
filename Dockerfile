@@ -16,4 +16,4 @@ RUN yarn global add pnpm && SKIP_ENV_VALIDATION=1 pnpm run build
 
 EXPOSE 3000
 
-CMD npx prisma db push && npm run start
+CMD pnpm prisma db push && npm run start
