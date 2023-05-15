@@ -3,8 +3,6 @@ WORKDIR /app
 
 ENV NODE_ENV production
 ENV DATABASE_URL=file:/database/db.sqlite
-ENV SETTINGS_PATH=/settings
-ENV DATA_PATH=/data
 
 COPY prisma ./
 

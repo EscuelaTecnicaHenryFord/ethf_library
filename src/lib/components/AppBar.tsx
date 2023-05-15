@@ -1,6 +1,5 @@
 import MuiAppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
-import Avatar from '@mui/material/Avatar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
@@ -20,7 +19,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { styled, alpha } from '@mui/material/styles';
 import { signOut, useSession } from 'next-auth/react';
-import { stringAvatar } from '../util/nameUtils';
 import InputBase from '@mui/material/InputBase';
 import { useRouter } from 'next/router';
 import { useUserRole } from '../util/useUserRole';
