@@ -8,6 +8,7 @@ import AppBar from "~/lib/components/AppBar";
 import ProtectedRoute from "~/lib/ProtectedRoute";
 import BookDialog from "~/lib/components/BookDialog";
 import { Button } from "@mui/material";
+import { useUserRole } from "~/lib/util/useUserRole";
 
 const Home: NextPage = () => {
   const { data: books, refetch } = api.getBooks.useQuery()
@@ -21,6 +22,8 @@ const Home: NextPage = () => {
   const [search, setSearch] = useState('')
 
   const [dialogState, setDialogState] = useState<{ show: boolean, bookId: string | null }>({ show: false, bookId: null })
+
+  const { isAdmin } = useUserRole()
 
   const editingBook = useMemo(() => {
     return books?.find(b => b.id.toString() === dialogState.bookId)
@@ -40,6 +43,10 @@ const Home: NextPage = () => {
     })
   }, [books, search])
 
+  function openAddBookDialog() {
+    setDialogState({ show: true, bookId: null })
+  }
+
   return (
     <ProtectedRoute>
       <Head>
@@ -48,11 +55,12 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="absolute bottom-2 left-3 z-10 flex gap-2 bg-white">
-        <Button onClick={() => setDialogState({ show: true, bookId: null })}>Añadir libro</Button>
-        {(selection.length === 1) && <Button onClick={() => setDialogState({ show: true, bookId: selection[0] || null})}>Modificar seleccionado</Button>}
+        {isAdmin && <Button onClick={() => setDialogState({ show: true, bookId: null })}>Añadir libro</Button>}
+        {(selection.length === 1) && <Button onClick={() => setDialogState({ show: true, bookId: selection[0] || null })}>{isAdmin ? 'Modificar seleccionado' : 'Ver seleccionado'}</Button>}
       </div>
       <AppBar
         onSearch={setSearch}
+        onClickAddBook={openAddBookDialog}
       />
       <BookDialog
         key={dialogState.bookId || ''}

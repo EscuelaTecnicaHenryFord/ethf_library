@@ -24,6 +24,7 @@ export const env = createEnv({
     AZURE_AD_CLIENT_ID: z.string(),
     AZURE_AD_CLIENT_SECRET: z.string(),
     AZURE_AD_TENANT_ID: z.string(),
+    ADMINS: z.string().transform((str) => new Set(str.split(",").map((s) => s.trim()))),
   },
 
   /**
@@ -47,5 +48,6 @@ export const env = createEnv({
     AZURE_AD_CLIENT_ID: process.env.AZURE_AD_CLIENT_ID,
     AZURE_AD_CLIENT_SECRET: process.env.AZURE_AD_CLIENT_SECRET,
     AZURE_AD_TENANT_ID: process.env.AZURE_AD_TENANT_ID,
+    ADMINS: process.env.ADMINS,
   },
 });

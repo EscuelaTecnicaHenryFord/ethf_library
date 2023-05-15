@@ -8,6 +8,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import type { Book } from '@prisma/client';
 import { TextField } from '@mui/material';
 import { api } from '~/utils/api';
+import { useUserRole } from '../util/useUserRole';
 
 interface Props {
     open: boolean
@@ -34,10 +35,12 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
 
     const isValid = Number.isInteger(code) && code > 0 && title.length > 0
 
+    const { isAdmin } = useUserRole()
+
     function handleDelete() {
         if (!book) return
 
-        if(!confirm('¿Estás seguro de que quieres eliminar este libro?')) return
+        if (!confirm('¿Estás seguro de que quieres eliminar este libro?')) return
 
         setLoading(true)
         void deleteBook({
@@ -112,11 +115,11 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                 }
             }}>
                 <DialogTitle id="alert-dialog-title">
-                    {book ? 'Modificar libro' : 'Añadir libro'}
+                    {book ? (isAdmin ? 'Modificar libro' : 'Detalles') : 'Añadir libro'}
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        {book ? 'Modifica los datos del libro' : 'Añade los datos del libro'}
+                        {book ? (isAdmin ? 'Modifica los datos del libro' : '') : 'Añade los datos del libro'}
                     </DialogContentText>
                     {error && <DialogContentText id="alert-dialog-error" color="error">
                         {error}
@@ -129,7 +132,7 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         type="number"
                         fullWidth
                         variant="standard"
-                        onChange={e => setCode(parseInt(e.target.value))}
+                        onChange={e => isAdmin ? setCode(parseInt(e.target.value)) : undefined}
                         value={code ? code : ''}
                     />
                     <TextField
@@ -139,7 +142,7 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         type="text"
                         fullWidth
                         variant="standard"
-                        onChange={e => setTitle(e.target.value)}
+                        onChange={e => isAdmin ? setTitle(e.target.value) : undefined}
                         value={title}
                     />
                     <TextField
@@ -149,7 +152,7 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         type="text"
                         fullWidth
                         variant="standard"
-                        onChange={e => setAuthor(e.target.value)}
+                        onChange={e => isAdmin ? setAuthor(e.target.value) : undefined}
                         value={author}
                     />
                     <TextField
@@ -159,7 +162,7 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         type="text"
                         fullWidth
                         variant="standard"
-                        onChange={e => setGenre(e.target.value)}
+                        onChange={e => isAdmin ? setGenre(e.target.value) : undefined}
                         value={genre}
                     />
                     <TextField
@@ -169,7 +172,7 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         type="text"
                         fullWidth
                         variant="standard"
-                        onChange={e => setEditor(e.target.value)}
+                        onChange={e => isAdmin ? setEditor(e.target.value) : undefined}
                         value={editor}
                     />
                     <TextField
@@ -179,16 +182,19 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         type="text"
                         fullWidth
                         variant="standard"
-                        onChange={e => setLocation(e.target.value)}
+                        onChange={e => isAdmin ? setLocation(e.target.value) : undefined}
                         value={location}
                     />
                 </DialogContent>
                 <DialogActions>
-                    {book && <Button type="button" color="error" onClick={handleDelete} disabled={loading}>Eliminar libro</Button>}
-                    <Button type="reset" onClick={handleClose} disabled={loading}>Cancelar</Button>
-                    <Button type='submit' autoFocus={!!book} disabled={!isValid || loading}>
-                        {book ? 'Modificar' : 'Añadir'}
-                    </Button>
+                    {(book && isAdmin) && <Button type="button" color="error" onClick={handleDelete} disabled={loading}>Eliminar libro</Button>}
+                    {isAdmin && <>
+                        <Button type="reset" onClick={handleClose} disabled={loading}>Cancelar</Button>
+                        <Button type='submit' autoFocus={!!book} disabled={!isValid || loading}>
+                            {book ? 'Modificar' : 'Añadir'}
+                        </Button>
+                    </>}
+                    <Button type="reset" onClick={handleClose} disabled={loading}>Cerrar</Button>
                 </DialogActions>
             </form>
         </Dialog>

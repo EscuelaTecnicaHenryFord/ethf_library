@@ -23,6 +23,7 @@ import { signOut, useSession } from 'next-auth/react';
 import { stringAvatar } from '../util/nameUtils';
 import InputBase from '@mui/material/InputBase';
 import { useRouter } from 'next/router';
+import { useUserRole } from '../util/useUserRole';
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -66,11 +67,13 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
 }));
 
-export default function AppBar(props: { onSearch: (query: string) => unknown }) {
+export default function AppBar(props: { onSearch: (query: string) => unknown, onClickAddBook?: () => unknown }) {
     const [open, setOpen] = useState(false);
     const router = useRouter();
 
     const { data: session } = useSession();
+
+    const { isAdmin } = useUserRole()
 
     return (
         <React.Fragment>
@@ -120,14 +123,14 @@ export default function AppBar(props: { onSearch: (query: string) => unknown }) 
                                 <ListItemText primary={"Libros"} />
                             </ListItemButton>
                         </ListItem>
-                        <ListItem disablePadding onClick={() => void 0}>
+                        {isAdmin && <ListItem disablePadding onClick={props.onClickAddBook}>
                             <ListItemButton>
                                 <ListItemIcon>
                                     <AddIcon />
                                 </ListItemIcon>
                                 <ListItemText primary={"Agregar libro"} />
                             </ListItemButton>
-                        </ListItem>
+                        </ListItem>}
                     </List>
                     <Divider />
                     <List>

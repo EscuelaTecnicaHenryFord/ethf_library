@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { env } from "~/env.mjs";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 /**
@@ -19,6 +20,14 @@ export const appRouter = createTRPCRouter({
     editor: z.string(),
     location: z.string(),
   })).mutation(async ({ ctx, input }) => {
+    const isAdmin = env.ADMINS.has(ctx.session.user.email || '')
+
+    if (!isAdmin) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+      });
+    }
+
     try {
       return await ctx.prisma.book.create({
         data: {
@@ -43,6 +52,14 @@ export const appRouter = createTRPCRouter({
     editor: z.string(),
     location: z.string(),
   })).mutation(async ({ ctx, input }) => {
+    const isAdmin = env.ADMINS.has(ctx.session.user.email || '')
+
+    if (!isAdmin) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+      });
+    }
+
     try {
       return await ctx.prisma.book.update({
         where: {
@@ -64,12 +81,25 @@ export const appRouter = createTRPCRouter({
   deleteBook: protectedProcedure.input(z.object({
     id: z.string(),
   })).mutation(({ ctx, input }) => {
+    const isAdmin = env.ADMINS.has(ctx.session.user.email || '')
+
+    if (!isAdmin) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+      });
+    }
+
     return ctx.prisma.book.delete({
       where: {
         id: input.id
       }
     })
-  })
+  }),
+  getRole: protectedProcedure.query(({ ctx }) => {
+    return {
+      isAdmin: env.ADMINS.has(ctx.session.user.email || '')
+    }
+  }),
 });
 
 // export type definition of API
