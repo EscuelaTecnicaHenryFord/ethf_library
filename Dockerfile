@@ -8,7 +8,7 @@ COPY prisma ./
 
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml\* ./
 
-RUN yarn global add pnpm && SKIP_ENV_VALIDATION=1 pnpm run install
+RUN yarn global add pnpm && SKIP_ENV_VALIDATION=1 pnpm install
 
 COPY . .
 
