@@ -19,6 +19,8 @@ export const appRouter = createTRPCRouter({
     genre: z.string(),
     editor: z.string(),
     location: z.string(),
+    reference: z.string(),
+    currentlyWith: z.string(),
   })).mutation(async ({ ctx, input }) => {
     const isAdmin = env.ADMINS.has(ctx.session.user.email || '')
 
@@ -37,6 +39,8 @@ export const appRouter = createTRPCRouter({
           genre: input.genre,
           editor: input.editor,
           location: input.location,
+          reference: input.reference,
+          currentlyWith: input.currentlyWith,
         }
       })
     } catch (error) {
@@ -51,6 +55,8 @@ export const appRouter = createTRPCRouter({
     genre: z.string(),
     editor: z.string(),
     location: z.string(),
+    reference: z.string(),
+    currentlyWith: z.string(),
   })).mutation(async ({ ctx, input }) => {
     const isAdmin = env.ADMINS.has(ctx.session.user.email || '')
 
@@ -72,6 +78,8 @@ export const appRouter = createTRPCRouter({
           genre: input.genre,
           editor: input.editor,
           location: input.location,
+          reference: input.reference,
+          currentlyWith: input.currentlyWith,
         }
       })
     } catch (error) {

@@ -142,6 +142,16 @@ const columns: GridColDef[] = [
   {
     field: 'location',
     headerName: 'Ubicación',
+    width: 220,
+  },
+  {
+    field: 'currentlyWith',
+    headerName: 'Usuario actualmente con el libro',
+    width: 220,
+  },
+  {
+    field: 'reference',
+    headerName: 'Referencia',
     width: 260,
   },
   { field: 'id', headerName: 'ID', width: 90 },

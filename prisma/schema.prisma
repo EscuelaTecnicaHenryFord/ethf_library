@@ -24,6 +24,8 @@ model Book {
     genre    String @default("")
     editor   String @default("")
     location String @default("")
+    reference String @default("")
+    currentlyWith String @default("") // Current user who has the book
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

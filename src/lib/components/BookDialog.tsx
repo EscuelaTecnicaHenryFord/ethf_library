@@ -29,6 +29,8 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
     const [genre, setGenre] = React.useState(book?.genre || '')
     const [editor, setEditor] = React.useState(book?.editor || '')
     const [location, setLocation] = React.useState(book?.location || '')
+    const [reference, setReference] = React.useState(book?.reference || '')
+    const [currentlyWith, setCurrentlyWith] = React.useState(book?.currentlyWith || '')
 
     const [error, setError] = React.useState('')
     const [loading, setLoading] = React.useState(false)
@@ -79,7 +81,9 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         author,
                         genre,
                         editor,
-                        location
+                        location,
+                        reference,
+                        currentlyWith,
                     }).then(() => {
                         handleClose()
                         onCompleted?.()
@@ -99,7 +103,9 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         author,
                         genre,
                         editor,
-                        location
+                        location,
+                        reference,
+                        currentlyWith,
                     }).then(() => {
                         handleClose()
                         onCompleted?.()
@@ -185,13 +191,33 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         onChange={e => isAdmin ? setLocation(e.target.value) : undefined}
                         value={location}
                     />
+                    <TextField
+                        margin="dense"
+                        id="reference"
+                        label="Refrencia"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        onChange={e => isAdmin ? setReference(e.target.value) : undefined}
+                        value={reference}
+                    />
+                    <TextField
+                        margin="dense"
+                        id="currentlyWith"
+                        label="Usuario actualmente con el libro"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        onChange={e => isAdmin ? setCurrentlyWith(e.target.value) : undefined}
+                        value={currentlyWith}
+                    />
                 </DialogContent>
                 <DialogActions>
                     {(book && isAdmin) && <Button type="button" color="error" onClick={handleDelete} disabled={loading}>Eliminar libro</Button>}
                     {isAdmin && <>
                         <Button type="reset" onClick={handleClose} disabled={loading}>Cancelar</Button>
                         <Button type='submit' autoFocus={!!book} disabled={!isValid || loading}>
-                            {book ? 'Modificar' : 'Añadir'}
+                            {book ? 'Guardar' : 'Añadir'}
                         </Button>
                     </>}
                     <Button type="reset" onClick={handleClose} disabled={loading}>Cerrar</Button>
