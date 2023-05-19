@@ -49,6 +49,9 @@ dependencies:
   next-auth:
     specifier: ^4.21.0
     version: 4.21.0(next@13.4.1)(react-dom@18.2.0)(react@18.2.0)
+  prisma:
+    specifier: ^4.11.0
+    version: 4.11.0
   react:
     specifier: 18.2.0
     version: 18.2.0
@@ -78,6 +81,9 @@ devDependencies:
   '@types/react-dom':
     specifier: ^18.0.11
     version: 18.0.11
+  '@types/serviceworker':
+    specifier: ^0.0.67
+    version: 0.0.67
   '@typescript-eslint/eslint-plugin':
     specifier: ^5.56.0
     version: 5.56.0(@typescript-eslint/parser@5.56.0)(eslint@8.36.0)(typescript@5.0.2)
@@ -102,9 +108,6 @@ devDependencies:
   prettier-plugin-tailwindcss:
     specifier: ^0.2.6
     version: 0.2.6(prettier@2.8.6)
-  prisma:
-    specifier: ^4.11.0
-    version: 4.11.0
   tailwindcss:
     specifier: ^3.3.0
     version: 3.3.0(postcss@8.4.21)
@@ -731,6 +734,7 @@ packages:
   /@prisma/engines@4.11.0:
     resolution: {integrity: sha512-0AEBi2HXGV02cf6ASsBPhfsVIbVSDC9nbQed4iiY5eHttW9ZtMxHThuKZE1pnESbr8HRdgmFSa/Kn4OSNYuibg==}
     requiresBuild: true
+    dev: false
 
   /@rushstack/eslint-patch@1.2.0:
     resolution: {integrity: sha512-sXo/qW2/pAcmT43VoRKOJbDOfV3cYpq3szSVfIThQXNt+E4DfKj361vaAt3c88U5tPUxzEswam7GW48PJqtKAg==}
@@ -902,6 +906,10 @@ packages:
 
   /@types/semver@7.5.0:
     resolution: {integrity: sha512-G8hZ6XJiHnuhQKR7ZmysCeJWE08o8T0AXtk5darsCaTVsYZhhgUrq53jizaR2FvsoeCwJhlmwTjkXBY5Pn/ZHw==}
+    dev: true
+
+  /@types/serviceworker@0.0.67:
+    resolution: {integrity: sha512-7TCH7iNsCSNb+aUD9M/36TekrWFSLCjNK8zw/3n5kOtRjbLtDfGYMXTrDnGhSfqXNwpqmt9Vd90w5C/ad1tX6Q==}
     dev: true
 
   /@typescript-eslint/eslint-plugin@5.56.0(@typescript-eslint/parser@5.56.0)(eslint@8.36.0)(typescript@5.0.2):
@@ -3121,6 +3129,7 @@ packages:
     requiresBuild: true
     dependencies:
       '@prisma/engines': 4.11.0
+    dev: false
 
   /prop-types@15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
