@@ -25,6 +25,12 @@ const Home: NextPage = () => {
 
   const { isAdmin } = useUserRole()
 
+  const [modalKey, setModalKey] = useState(0)
+
+  function resetModal() {
+    setModalKey(modalKey + 1);
+  }
+
   const editingBook = useMemo(() => {
     return books?.find(b => b.id.toString() === dialogState.bookId)
   }, [books, dialogState.bookId])
@@ -66,10 +72,13 @@ const Home: NextPage = () => {
         onClickAddBook={openAddBookDialog}
       />
       <BookDialog
-        key={dialogState.bookId || ''}
+        key={dialogState.bookId || modalKey}
         open={dialogState.show}
         handleClose={() => setDialogState({ show: false, bookId: null })}
-        onCompleted={refetch}
+        onCompleted={() => {
+          void refetch()
+          resetModal()
+        }}
         book={editingBook}
       />
       <Box
