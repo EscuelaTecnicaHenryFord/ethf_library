@@ -14,7 +14,7 @@ interface Props {
     open: boolean
     handleClose: () => unknown
     book?: Book
-    onCompleted?: () => unknown
+    onCompleted?: (props: { deleted?: string, added?: string, updated?: string }) => unknown
 }
 
 export default function BookDialog({ open, handleClose, book, onCompleted }: Props) {
@@ -49,7 +49,7 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
             id: book.id,
         }).then(() => {
             handleClose()
-            onCompleted?.()
+            onCompleted?.({deleted: title})
         }).catch(e => {
             const err = e as { code?: string, message?: string }
             setError(err.message || '')
@@ -86,7 +86,7 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         currentlyWith,
                     }).then(() => {
                         handleClose()
-                        onCompleted?.()
+                        onCompleted?.({updated: title})
                     }).catch(e => {
                         const err = e as { code?: string, message?: string }
                         if (err.message === 'CONFLICT') {
@@ -108,7 +108,7 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         currentlyWith,
                     }).then(() => {
                         handleClose()
-                        onCompleted?.()
+                        onCompleted?.({added: title})
                     }).catch(e => {
                         const err = e as { code?: string, message?: string }
                         if (err.message === 'CONFLICT') {

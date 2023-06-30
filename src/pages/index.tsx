@@ -7,7 +7,7 @@ import { useMemo, useState } from "react";
 import AppBar from "~/lib/components/AppBar";
 import ProtectedRoute from "~/lib/ProtectedRoute";
 import BookDialog from "~/lib/components/BookDialog";
-import { Button } from "@mui/material";
+import { Button, Snackbar } from "@mui/material";
 import { useUserRole } from "~/lib/util/useUserRole";
 
 const Home: NextPage = () => {
@@ -56,6 +56,9 @@ const Home: NextPage = () => {
     setDialogState({ show: true, bookId: null })
   }
 
+  const [openSnackbar, setOpenSnackbar] = useState('');
+
+
   return (
     <ProtectedRoute>
       <Head>
@@ -63,6 +66,7 @@ const Home: NextPage = () => {
         <meta name="description" content="Biblioteca ETHF" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <Snackbar open={!!openSnackbar} onClose={() => setOpenSnackbar('')} message={openSnackbar} autoHideDuration={6000} />
       <div className="absolute bottom-2 left-3 z-10 flex gap-2 bg-white">
         {isAdmin && <Button onClick={() => setDialogState({ show: true, bookId: null })}>Añadir libro</Button>}
         {(selection.length === 1) && <Button onClick={() => setDialogState({ show: true, bookId: selection[0] || null })}>{isAdmin ? 'Modificar seleccionado' : 'Ver seleccionado'}</Button>}
@@ -75,9 +79,17 @@ const Home: NextPage = () => {
         key={dialogState.bookId || modalKey}
         open={dialogState.show}
         handleClose={() => setDialogState({ show: false, bookId: null })}
-        onCompleted={() => {
+        onCompleted={(data) => {
           void refetch()
           resetModal()
+          if (data.added) {
+            setOpenSnackbar("Se agregó el libro " + data.added);
+          } else if (data.updated) {
+            setOpenSnackbar("Se actualizó el libro " + data.updated);
+          } else if (data.deleted) {
+            setOpenSnackbar("Se eliminó el libro " + data.deleted);
+          }
+          setDialogState({ show: true, bookId: null })
         }}
         book={editingBook}
       />
