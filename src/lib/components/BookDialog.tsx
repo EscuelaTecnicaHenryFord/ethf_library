@@ -6,9 +6,13 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import type { Book } from '@prisma/client';
-import { TextField } from '@mui/material';
-import { api } from '~/utils/api';
+import { FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { RouterInputs, api } from '~/utils/api';
 import { useUserRole } from '../util/useUserRole';
+import DoNotDisturbOnIcon from '@mui/icons-material/DoNotDisturbOn';
+import CheckIcon from '@mui/icons-material/Check';
+import HelpIcon from '@mui/icons-material/Help';
+import BrokenImageIcon from '@mui/icons-material/BrokenImage';
 
 interface Props {
     open: boolean
@@ -31,6 +35,7 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
     const [location, setLocation] = React.useState(book?.location || '')
     const [reference, setReference] = React.useState(book?.reference || '')
     const [currentlyWith, setCurrentlyWith] = React.useState(book?.currentlyWith || '')
+    const [status, setStatus] = React.useState(book?.status || 'active')
 
     const [error, setError] = React.useState('')
     const [loading, setLoading] = React.useState(false)
@@ -49,7 +54,7 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
             id: book.id,
         }).then(() => {
             handleClose()
-            onCompleted?.({deleted: title})
+            onCompleted?.({ deleted: title })
         }).catch(e => {
             const err = e as { code?: string, message?: string }
             setError(err.message || '')
@@ -84,9 +89,11 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         location,
                         reference,
                         currentlyWith,
+                        status: status as RouterInputs['updateBook']['status'],
                     }).then(() => {
                         handleClose()
-                        onCompleted?.({updated: title})
+                        onCompleted?.({ updated: title })
+                        handleClose()
                     }).catch(e => {
                         const err = e as { code?: string, message?: string }
                         if (err.message === 'CONFLICT') {
@@ -106,9 +113,10 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         location,
                         reference,
                         currentlyWith,
+                        status: status as RouterInputs['updateBook']['status'],
                     }).then(() => {
                         handleClose()
-                        onCompleted?.({added: title})
+                        onCompleted?.({ added: title })
                     }).catch(e => {
                         const err = e as { code?: string, message?: string }
                         if (err.message === 'CONFLICT') {
@@ -211,16 +219,50 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         onChange={e => isAdmin ? setCurrentlyWith(e.target.value) : undefined}
                         value={currentlyWith}
                     />
+                    <FormControl fullWidth className='mt-4'>
+                        <InputLabel id="book-status">Estado</InputLabel>
+                        <Select
+                            fullWidth
+                            labelId='book-status'
+                            value={status}
+                            label="Estado"
+                            onChange={e => isAdmin ? setStatus(e.target.value as string) : undefined}
+                        >
+                            <MenuItem value={'inactive'}>
+                                <div className='flex items-center gap-2'>
+                                    <DoNotDisturbOnIcon fontSize={'small'} />
+                                    Inactivo
+                                </div>
+                            </MenuItem>
+                            <MenuItem value={'active'} className='flex items-center gap-2'>
+                                <div className='flex items-center gap-2'>
+                                    <CheckIcon fontSize={'small'} />
+                                    Activo
+                                </div>
+                            </MenuItem>
+                            <MenuItem value={'lost'} className='flex items-center gap-2'>
+                                <div className='flex items-center gap-2'>
+                                    <HelpIcon fontSize={'small'} />
+                                    Perdido
+                                </div>
+                            </MenuItem>
+                            <MenuItem value={'damaged'} className='flex items-center gap-2'>
+                                <div className='flex items-center gap-2'>
+                                    <BrokenImageIcon fontSize={'small'} />
+                                    Dañado
+                                </div>
+                            </MenuItem>
+                        </Select>
+                    </ FormControl>
                 </DialogContent>
                 <DialogActions>
                     {(book && isAdmin) && <Button type="button" color="error" onClick={handleDelete} disabled={loading}>Eliminar libro</Button>}
+                    <Button type="reset" onClick={handleClose} disabled={loading}>Cancelar</Button>
                     {isAdmin && <>
-                        <Button type="reset" onClick={handleClose} disabled={loading}>Cancelar</Button>
-                        <Button type='submit' autoFocus={!!book} disabled={!isValid || loading}>
+                        <Button type='submit' autoFocus={!!book} disabled={!isValid || loading} variant='outlined'>
                             {book ? 'Guardar' : 'Añadir'}
                         </Button>
                     </>}
-                    <Button type="reset" onClick={handleClose} disabled={loading}>Cerrar</Button>
                 </DialogActions>
             </form>
         </Dialog>

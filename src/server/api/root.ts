@@ -21,6 +21,7 @@ export const appRouter = createTRPCRouter({
     location: z.string(),
     reference: z.string(),
     currentlyWith: z.string(),
+    status: z.enum(['active', 'inactive', 'lost', 'damaged'])
   })).mutation(async ({ ctx, input }) => {
     const isAdmin = env.ADMINS.has(ctx.session.user.email || '')
 
@@ -41,6 +42,7 @@ export const appRouter = createTRPCRouter({
           location: input.location,
           reference: input.reference,
           currentlyWith: input.currentlyWith,
+          status: input.status,
         }
       })
     } catch (error) {
@@ -57,6 +59,7 @@ export const appRouter = createTRPCRouter({
     location: z.string(),
     reference: z.string(),
     currentlyWith: z.string(),
+    status: z.enum(['active', 'inactive', 'lost', 'damaged'])
   })).mutation(async ({ ctx, input }) => {
     const isAdmin = env.ADMINS.has(ctx.session.user.email || '')
 
@@ -80,6 +83,7 @@ export const appRouter = createTRPCRouter({
           location: input.location,
           reference: input.reference,
           currentlyWith: input.currentlyWith,
+          status: input.status,
         }
       })
     } catch (error) {

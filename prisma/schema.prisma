@@ -18,14 +18,16 @@ datasource db {
 model Book {
     id String @id @default(cuid())
 
-    code     Int    @unique
-    title    String
-    author   String @default("")
-    genre    String @default("")
-    editor   String @default("")
-    location String @default("")
-    reference String @default("")
-    currentlyWith String @default("") // Current user who has the book
+    code           Int       @unique
+    title          String
+    author         String    @default("")
+    genre          String    @default("")
+    editor         String    @default("")
+    location       String    @default("")
+    reference      String    @default("")
+    currentlyWith  String    @default("") // Current user who has the book
+    expectedReturn DateTime? // Expected return date
+    status         String    @default("inactive") // active, damaged, lost, inactive
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

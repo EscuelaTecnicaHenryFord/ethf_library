@@ -9,6 +9,10 @@ import ProtectedRoute from "~/lib/ProtectedRoute";
 import BookDialog from "~/lib/components/BookDialog";
 import { Button, Snackbar } from "@mui/material";
 import { useUserRole } from "~/lib/util/useUserRole";
+import DoNotDisturbOnIcon from '@mui/icons-material/DoNotDisturbOn';
+import CheckIcon from '@mui/icons-material/Check';
+import HelpIcon from '@mui/icons-material/Help';
+import BrokenImageIcon from '@mui/icons-material/BrokenImage';
 
 const Home: NextPage = () => {
   const { data: books, refetch } = api.getBooks.useQuery()
@@ -142,6 +146,30 @@ const columns: GridColDef[] = [
     field: 'code',
     headerName: 'Code',
     width: 90,
+  },
+  {
+    field: 'status',
+    headerName: 'Estado',
+    width: 60,
+    renderCell: (params) => {
+      if (params.value === 'active') {
+        return <CheckIcon fontSize={'small'} />
+      }
+
+      if (params.value === 'lost') {
+        return <HelpIcon fontSize={'small'} />
+      }
+
+      if (params.value === 'damaged') {
+        return <BrokenImageIcon fontSize={'small'} />
+      }
+
+      if (params.value === 'inactive') {
+        return <DoNotDisturbOnIcon fontSize={'small'} />
+      }
+
+      return '--'
+    }
   },
   {
     field: 'title',

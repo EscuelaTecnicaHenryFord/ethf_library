@@ -22,6 +22,7 @@ import { signOut, useSession } from 'next-auth/react';
 import InputBase from '@mui/material/InputBase';
 import { useRouter } from 'next/router';
 import { useUserRole } from '../util/useUserRole';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -65,7 +66,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
 }));
 
-export default function AppBar(props: { onSearch: (query: string) => unknown, onClickAddBook?: () => unknown }) {
+export default function AppBar(props: { onSearch?: (query: string) => unknown, onClickAddBook?: () => unknown }) {
     const [open, setOpen] = useState(false);
     const router = useRouter();
 
@@ -121,7 +122,7 @@ export default function AppBar(props: { onSearch: (query: string) => unknown, on
                                 <ListItemText primary={"Libros"} />
                             </ListItemButton>
                         </ListItem>
-                        {isAdmin && <ListItem disablePadding onClick={props.onClickAddBook}>
+                        {isAdmin && props.onClickAddBook && <ListItem disablePadding onClick={props.onClickAddBook}>
                             <ListItemButton>
                                 <ListItemIcon>
                                     <AddIcon />
@@ -129,6 +130,14 @@ export default function AppBar(props: { onSearch: (query: string) => unknown, on
                                 <ListItemText primary={"Agregar libro"} />
                             </ListItemButton>
                         </ListItem>}
+                        {/* {isAdmin && <ListItem disablePadding onClick={() => void router.push('/administrar')}>
+                            <ListItemButton>
+                                <ListItemIcon>
+                                    <SettingsIcon />
+                                </ListItemIcon>
+                                <ListItemText primary={"Administrar"} />
+                            </ListItemButton>
+                        </ListItem>} */}
                     </List>
                     <Divider />
                     <List>
@@ -165,16 +174,16 @@ export default function AppBar(props: { onSearch: (query: string) => unknown, on
                         >
                             Biblioteca
                         </Typography>
-                        <Search>
+                        {props.onSearch && <Search>
                             <SearchIconWrapper>
                                 <SearchIcon />
                             </SearchIconWrapper>
                             <StyledInputBase
-                                onChange={e => props.onSearch(e.target.value?.toString() || '')}
+                                onChange={e => props.onSearch?.(e.target.value?.toString() || '')}
                                 placeholder="Buscar..."
                                 inputProps={{ 'aria-label': 'search' }}
                             />
-                        </Search>
+                        </Search>}
                         {/* <Avatar {...stringAvatar(session?.user.name || 'H F')} /> */}
                     </Toolbar>
                 </MuiAppBar>
