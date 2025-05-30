@@ -219,7 +219,7 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         onChange={e => isAdmin ? setCurrentlyWith(e.target.value) : undefined}
                         value={currentlyWith}
                     />
-                    <FormControl fullWidth className='mt-4'>
+                    <FormControl fullWidth style={{ marginTop: '4px' }}>
                         <InputLabel id="book-status">Estado</InputLabel>
                         <Select
                             fullWidth
