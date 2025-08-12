@@ -6,7 +6,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import type { Book } from '@prisma/client';
-import { FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { Autocomplete, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { RouterInputs, api } from '~/utils/api';
 import { useUserRole } from '../util/useUserRole';
 import DoNotDisturbOnIcon from '@mui/icons-material/DoNotDisturbOn';
@@ -34,7 +34,7 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
     const [editor, setEditor] = React.useState(book?.editor || '')
     const [location, setLocation] = React.useState(book?.location || '')
     const [reference, setReference] = React.useState(book?.reference || '')
-    const [currentlyWith, setCurrentlyWith] = React.useState(book?.currentlyWith || '')
+    const [currentlyWith, setCurrentlyWith] = React.useState(book?.currentlyWith || undefined)
     const [status, setStatus] = React.useState(book?.status || 'active')
 
     const [error, setError] = React.useState('')
@@ -43,6 +43,8 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
     const isValid = Number.isInteger(code) && code > 0 && title.length > 0
 
     const { isAdmin } = useUserRole()
+
+    const students = api.listStudents.useQuery()
 
     function handleDelete() {
         if (!book) return
@@ -209,51 +211,55 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         onChange={e => isAdmin ? setReference(e.target.value) : undefined}
                         value={reference}
                     />
-                    <TextField
-                        margin="dense"
-                        id="currentlyWith"
-                        label="Usuario actualmente con el libro"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        onChange={e => isAdmin ? setCurrentlyWith(e.target.value) : undefined}
-                        value={currentlyWith}
-                    />
-                    <FormControl fullWidth style={{ marginTop: '4px' }}>
-                        <InputLabel id="book-status">Estado</InputLabel>
-                        <Select
-                            fullWidth
-                            labelId='book-status'
-                            value={status}
-                            label="Estado"
-                            onChange={e => isAdmin ? setStatus(e.target.value as string) : undefined}
-                        >
-                            <MenuItem value={'inactive'}>
-                                <div className='flex items-center gap-2'>
-                                    <DoNotDisturbOnIcon fontSize={'small'} />
-                                    Inactivo
-                                </div>
-                            </MenuItem>
-                            <MenuItem value={'active'} className='flex items-center gap-2'>
-                                <div className='flex items-center gap-2'>
-                                    <CheckIcon fontSize={'small'} />
-                                    Activo
-                                </div>
-                            </MenuItem>
-                            <MenuItem value={'lost'} className='flex items-center gap-2'>
-                                <div className='flex items-center gap-2'>
-                                    <HelpIcon fontSize={'small'} />
-                                    Perdido
-                                </div>
-                            </MenuItem>
-                            <MenuItem value={'damaged'} className='flex items-center gap-2'>
-                                <div className='flex items-center gap-2'>
-                                    <BrokenImageIcon fontSize={'small'} />
-                                    Dañado
-                                </div>
-                            </MenuItem>
-                        </Select>
-                    </ FormControl>
+                    <div className='space-y-4 mt-4'>
+                        <FormControl fullWidth>
+                            <Autocomplete
+                                fullWidth
+                                renderInput={(params) => <TextField {...params} label="Estudiante" />}
+                                options={students.data?.map(s => ({
+                                    label: `HF${s.matricula} | ${s.nombre} ${s.apellido}`,
+                                    value: s.matricula
+                                })) ?? []}
+                                onChange={(e, option) => isAdmin ? setCurrentlyWith(option?.value ? `HF${option.value}` : undefined) : undefined}
+                                value={currentlyWith ? { value: parseInt(currentlyWith?.substring(2)), label: currentlyWith } : undefined}
+                            />
+                        </FormControl>
+                        <FormControl fullWidth>
+                            <InputLabel id="book-status">Estado</InputLabel>
+                            <Select
+                                fullWidth
+                                labelId='book-status'
+                                value={status}
+                                label="Estado"
+                                onChange={e => isAdmin ? setStatus(e.target.value) : undefined}
+                            >
+                                <MenuItem value={'inactive'}>
+                                    <div className='flex items-center gap-2'>
+                                        <DoNotDisturbOnIcon fontSize={'small'} />
+                                        Inactivo
+                                    </div>
+                                </MenuItem>
+                                <MenuItem value={'active'} className='flex items-center gap-2'>
+                                    <div className='flex items-center gap-2'>
+                                        <CheckIcon fontSize={'small'} />
+                                        Activo
+                                    </div>
+                                </MenuItem>
+                                <MenuItem value={'lost'} className='flex items-center gap-2'>
+                                    <div className='flex items-center gap-2'>
+                                        <HelpIcon fontSize={'small'} />
+                                        Perdido
+                                    </div>
+                                </MenuItem>
+                                <MenuItem value={'damaged'} className='flex items-center gap-2'>
+                                    <div className='flex items-center gap-2'>
+                                        <BrokenImageIcon fontSize={'small'} />
+                                        Dañado
+                                    </div>
+                                </MenuItem>
+                            </Select>
+                        </FormControl>
+                    </div>
                 </DialogContent>
                 <DialogActions>
                     {(book && isAdmin) && <Button type="button" color="error" onClick={handleDelete} disabled={loading}>Eliminar libro</Button>}

@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { env } from "~/env.mjs";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { ethf } from "../db";
 
 /**
  * This is the primary router for your server.
@@ -20,7 +21,7 @@ export const appRouter = createTRPCRouter({
     editor: z.string(),
     location: z.string(),
     reference: z.string(),
-    currentlyWith: z.string(),
+    currentlyWith: z.string().optional(),
     status: z.enum(['active', 'inactive', 'lost', 'damaged'])
   })).mutation(async ({ ctx, input }) => {
     const isAdmin = env.ADMINS.has(ctx.session.user.email || '')
@@ -58,7 +59,7 @@ export const appRouter = createTRPCRouter({
     editor: z.string(),
     location: z.string(),
     reference: z.string(),
-    currentlyWith: z.string(),
+    currentlyWith: z.string().optional(),
     status: z.enum(['active', 'inactive', 'lost', 'damaged'])
   })).mutation(async ({ ctx, input }) => {
     const isAdmin = env.ADMINS.has(ctx.session.user.email || '')
@@ -112,6 +113,15 @@ export const appRouter = createTRPCRouter({
       isAdmin: env.ADMINS.has(ctx.session.user.email || '')
     }
   }),
+  listStudents: protectedProcedure.query(async ({ ctx }) => {
+    const result = await ethf.execute("SELECT * FROM estudiantes_ethf")
+
+    return result.rows.map(student => ({
+      matricula: student.matricula,
+      nombre: student.nombre,
+      apellido: student.apellido,
+    }) as { matricula: number, nombre: string, apellido: string })
+  })
 });
 
 // export type definition of API
