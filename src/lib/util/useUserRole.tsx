@@ -5,8 +5,5 @@ export function useUserRole() {
     return {
         ...data,
         isLoading: isInitialLoading && !error,
-    } || {
-        isAdmin: false,
-        isLoading: isInitialLoading && !error,
     }
 }
