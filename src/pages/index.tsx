@@ -54,11 +54,11 @@ const Home: NextPage = () => {
       const editor = b.editor.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
       const location = b.location.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
       const reference = b.reference.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
-      const currentlyWith = b.currentlyWith.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+      const currentlyWith = b.currentlyWith?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
 
       const filter = search.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
 
-      return code.includes(filter) || title.includes(filter) || author.includes(filter) || genre.includes(filter) || editor.includes(filter) || location.includes(filter) || reference.includes(filter) || currentlyWith.includes(filter)
+      return code.includes(filter) || title.includes(filter) || author.includes(filter) || genre.includes(filter) || editor.includes(filter) || location.includes(filter) || reference.includes(filter) || !!currentlyWith?.includes(filter)
     })
   }, [books, search])
 
