@@ -22,11 +22,11 @@ function sendBookLentEmail(bookTitle: string, bookCode: number, studentId: strin
   });
 }
 
-function sendBookReturnedEmail(bookTitle: string, bookCode: number, studentId: string, studentName: string) {
+function sendBookReturnedEmail(bookTitle: string, bookCode: number) {
   const mailOptions = {
     to: ['biblioteca@henryford.edu.ar'],
     subject: `Devolución de libro: ${bookTitle}`,
-    html: `<p>El libro <strong>${bookTitle}</strong> (${bookCode}) ha sido devuelto por <strong>${studentName}</strong> (${studentId}).</p>`
+    html: `<p>El libro <strong>${bookTitle}</strong> (${bookCode}) ha sido devuelto.</p>`
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
@@ -140,7 +140,7 @@ export const appRouter = createTRPCRouter({
         if (r.currentlyWith || r.expectedReturn) {
           sendBookLentEmail(r.title, r.code, r.currentlyWith!, student ? `${student.nombre} ${student.apellido}` : 'Desconocido', r.expectedReturn || new Date())
         } else if (!r.currentlyWith && !r.expectedReturn) {
-          sendBookReturnedEmail(r.title, r.code, input.currentlyWith!, student ? `${student.nombre} ${student.apellido}` : 'Desconocido')
+          sendBookReturnedEmail(r.title, r.code)
         }
       }
 
