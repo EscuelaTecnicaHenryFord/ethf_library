@@ -1,7 +1,7 @@
 FROM oven/bun:1 AS base
 WORKDIR /app
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 ENV DATABASE_URL=file:/database/db.sqlite
 
 COPY prisma ./
