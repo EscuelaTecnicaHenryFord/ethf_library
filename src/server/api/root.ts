@@ -5,6 +5,39 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { ethf } from "../db";
 import { transporter } from "../email";
 
+function sendBookLentEmail(bookTitle: string, bookCode: number, studentId: string, studentName: string, expectedReturn: Date) {
+  const mailOptions = {
+    to: ['biblioteca@henryford.edu.ar'],
+    subject: `Préstamo de libro: ${bookTitle}`,
+    html: `<p>El libro <strong>${bookTitle}</strong> (${bookCode}) ha sido prestado a <strong>${studentName}</strong> (${studentId}).</p>
+           <p>Fecha de devolución esperada: <strong>${expectedReturn.toLocaleDateString()}</strong>.</p>`
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error("Error al enviar el correo:", error);
+    } else {
+      console.log("Correo enviado:", info.response);
+    }
+  });
+}
+
+function sendBookReturnedEmail(bookTitle: string, bookCode: number, studentId: string, studentName: string) {
+  const mailOptions = {
+    to: ['biblioteca@henryford.edu.ar'],
+    subject: `Devolución de libro: ${bookTitle}`,
+    html: `<p>El libro <strong>${bookTitle}</strong> (${bookCode}) ha sido devuelto por <strong>${studentName}</strong> (${studentId}).</p>`
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error("Error al enviar el correo:", error);
+    } else {
+      console.log("Correo enviado:", info.response);
+    }
+  });
+}
+
 /**
  * This is the primary router for your server.
  *
@@ -97,20 +130,18 @@ export const appRouter = createTRPCRouter({
           status: input.status,
         }
       })
-      
+
 
 
       if (input.currentlyWith !== undefined || input.expectedReturn !== undefined) {
         const studentReturn = r.currentlyWith ? await ethf.execute("SELECT * FROM estudiantes_ethf WHERE matricula = ?", [r.currentlyWith?.replace('HF', '')]) : undefined
         const student = studentReturn?.rows?.[0]
 
-        await transporter.sendMail({
-          to: ['biblioteca@henryford.edu.ar'],
-          from: `${(process.env.SMTP_FROM_NAME || process.env.SMTP_USER || 'Reportes')} <${process.env.SMTP_FROM_EMAIL || ''}>`,
-          subject: `Libro ${r.title} (${r.code}) prestado a ${r.currentlyWith}`,
-          html: `<p>El libro <strong>${r.title}</strong> (${r.code}) ha sido prestado a <strong>${r.currentlyWith} ${student?.nombre} ${student?.apellido}</strong>.</p>
-                   <p>Fecha de devolución esperada: ${r.expectedReturn ? r.expectedReturn.toLocaleDateString() : 'N/A'}.</p>`,
-        }).catch(console.error);
+        if (r.currentlyWith || r.expectedReturn) {
+          sendBookLentEmail(r.title, r.code, r.currentlyWith!, student ? `${student.nombre} ${student.apellido}` : 'Desconocido', r.expectedReturn || new Date())
+        } else if (!r.currentlyWith && !r.expectedReturn) {
+          sendBookReturnedEmail(r.title, r.code, input.currentlyWith!, student ? `${student.nombre} ${student.apellido}` : 'Desconocido')
+        }
       }
 
       return r
