@@ -4,6 +4,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV DATABASE_URL=file:/database/db.sqlite
 
+RUN apt-get update -y && apt-get install -y openssl
+
 COPY prisma ./
 
 COPY package.json bun.lock ./
