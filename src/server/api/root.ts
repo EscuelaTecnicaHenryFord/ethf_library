@@ -3,6 +3,7 @@ import { z } from "zod";
 import { env } from "~/env.mjs";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { ethf } from "../db";
+import { transporter } from "../email";
 
 /**
  * This is the primary router for your server.
@@ -59,8 +60,8 @@ export const appRouter = createTRPCRouter({
     editor: z.string(),
     location: z.string(),
     reference: z.string(),
-    currentlyWith: z.string().optional(),
-    expectedReturn: z.date().optional(),
+    currentlyWith: z.string().nullable().optional(),
+    expectedReturn: z.date().nullable().optional(),
     status: z.enum(['active', 'inactive', 'lost', 'damaged'])
   })).mutation(async ({ ctx, input }) => {
     const isAdmin = env.ADMINS.has(ctx.session.user.email || '')
@@ -71,8 +72,15 @@ export const appRouter = createTRPCRouter({
       });
     }
 
+    if (input.currentlyWith && !input.expectedReturn) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "No se puede prestar un libro sin una fecha de devolución esperada.",
+      });
+    }
+
     try {
-      return await ctx.prisma.book.update({
+      const r = await ctx.prisma.book.update({
         where: {
           id: input.id
         },
@@ -89,6 +97,22 @@ export const appRouter = createTRPCRouter({
           status: input.status,
         }
       })
+
+
+      if (input.currentlyWith !== undefined || input.expectedReturn !== undefined) {
+        const studentReturn = r.currentlyWith ? await ethf.execute("SELECT * FROM estudiantes_ethf WHERE matricula = ?", [r.currentlyWith?.replace('HF', '')]) : undefined
+        const student = studentReturn?.rows?.[0]
+
+        await transporter.sendMail({
+          to: ['biblioteca@henryford.edu.ar'],
+          from: `${(process.env.SMTP_FROM_NAME || process.env.SMTP_USER || 'Reportes')} <${process.env.SMTP_FROM_EMAIL || ''}>`,
+          subject: `Libro ${r.title} (${r.code}) prestado a ${r.currentlyWith}`,
+          html: `<p>El libro <strong>${r.title}</strong> (${r.code}) ha sido prestado a <strong>${r.currentlyWith} ${student?.nombre} ${student?.apellido}</strong>.</p>
+                   <p>Fecha de devolución esperada: ${r.expectedReturn ? r.expectedReturn.toLocaleDateString() : 'N/A'}.</p>`,
+        }).catch(console.error);
+      }
+
+      return r
     } catch (error) {
       catchPrismaConstrainError(error as { code?: string });
     }

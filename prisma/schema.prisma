@@ -25,7 +25,7 @@ model Book {
     editor         String    @default("")
     location       String    @default("")
     reference      String    @default("")
-    currentlyWith  String    @default("") // Current user who has the book
+    currentlyWith  String?   // Prestado a usuario
     expectedReturn DateTime? // Expected return date
     status         String    @default("inactive") // active, damaged, lost, inactive
 

@@ -38,8 +38,8 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
     const [editor, setEditor] = React.useState(book?.editor || '')
     const [location, setLocation] = React.useState(book?.location || '')
     const [reference, setReference] = React.useState(book?.reference || '')
-    const [currentlyWith, setCurrentlyWith] = React.useState(book?.currentlyWith || undefined)
-    const [returnDate, setReturnDate] = React.useState<number | undefined>(book?.expectedReturn?.getTime())
+    const [currentlyWith, setCurrentlyWith] = React.useState(book?.currentlyWith || null)
+    const [returnDate, setReturnDate] = React.useState(book?.expectedReturn?.getTime() || null)
     const [status, setStatus] = React.useState(book?.status || 'active')
 
     const [error, setError] = React.useState('')
@@ -89,14 +89,14 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
     const currentYear = new Date().getFullYear()
 
     function setStudent(matricula?: number) {
-        setCurrentlyWith(matricula ? `HF${matricula}` : undefined)
+        setCurrentlyWith(matricula ? `HF${matricula}` : null)
         if (matricula && !returnDate) {
             // 15 from now
             const date = new Date()
             date.setDate(date.getDate() + 15)
             setReturnDate(date.getTime())
         } else if (!matricula) {
-            setReturnDate(undefined)
+            setReturnDate(null)
         }
     }
 
@@ -116,6 +116,9 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                 setError('')
                 setLoading(true)
 
+                const currentlyWithChanged = currentlyWith !== book?.currentlyWith
+                const returnDateChanged = returnDate !== book?.expectedReturn?.getTime()
+
                 if (book) {
                     void updateBook({
                         id: book.id,
@@ -126,8 +129,8 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         editor,
                         location,
                         reference,
-                        currentlyWith,
-                        expectedReturn: returnDate ? new Date(returnDate) : undefined,
+                        currentlyWith: currentlyWithChanged ? currentlyWith : undefined,
+                        expectedReturn: returnDateChanged ? (returnDate ? new Date(returnDate) : null) : undefined,
                         status: status as RouterInputs['updateBook']['status'],
                     }).then(() => {
                         handleClose()
@@ -151,7 +154,6 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         editor,
                         location,
                         reference,
-                        currentlyWith,
                         status: status as RouterInputs['updateBook']['status'],
                     }).then(() => {
                         handleClose()
@@ -272,7 +274,7 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                             {currentlyWith && <FormControl fullWidth>
                                 <DatePicker label="Fecha de devolución"
                                     value={dayjs(returnDate)}
-                                    onChange={(value) => { setReturnDate(value?.valueOf()) }}
+                                    onChange={(value) => { setReturnDate(value?.valueOf() ?? null) }}
                                     format={`dddd DD/MM/YYYY ${fromNowReturnDateText}`}
                                 />
                             </FormControl>}
