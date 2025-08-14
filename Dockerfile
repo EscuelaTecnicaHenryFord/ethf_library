@@ -8,11 +8,11 @@ COPY prisma ./
 
 COPY package.json bun.lock ./
 
-RUN yarn global add pnpm && SKIP_ENV_VALIDATION=1 pnpm install
+RUN bun install
 
 COPY . .
 
-RUN yarn global add bun && SKIP_ENV_VALIDATION=1 bun run build
+RUN bun run build
 
 EXPOSE 3000
 
