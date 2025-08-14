@@ -60,6 +60,7 @@ export const appRouter = createTRPCRouter({
     location: z.string(),
     reference: z.string(),
     currentlyWith: z.string().optional(),
+    expectedReturn: z.date().optional(),
     status: z.enum(['active', 'inactive', 'lost', 'damaged'])
   })).mutation(async ({ ctx, input }) => {
     const isAdmin = env.ADMINS.has(ctx.session.user.email || '')
@@ -84,6 +85,7 @@ export const appRouter = createTRPCRouter({
           location: input.location,
           reference: input.reference,
           currentlyWith: input.currentlyWith,
+          expectedReturn: input.expectedReturn,
           status: input.status,
         }
       })
@@ -120,7 +122,9 @@ export const appRouter = createTRPCRouter({
       matricula: student.matricula,
       nombre: student.nombre,
       apellido: student.apellido,
-    }) as { matricula: number, nombre: string, apellido: string })
+      ingreso: student.ingreso,
+      repite: student.repite,
+    }) as { matricula: number, nombre: string, apellido: string, ingreso: number, repite: number })
   })
 });
 

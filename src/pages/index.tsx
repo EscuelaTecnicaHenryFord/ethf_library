@@ -13,6 +13,12 @@ import DoNotDisturbOnIcon from '@mui/icons-material/DoNotDisturbOn';
 import CheckIcon from '@mui/icons-material/Check';
 import HelpIcon from '@mui/icons-material/Help';
 import BrokenImageIcon from '@mui/icons-material/BrokenImage';
+import dayjs from "dayjs";
+import relativeTime from 'dayjs/plugin/relativeTime'
+import 'dayjs/locale/es'; // Import Spanish locale
+
+dayjs.extend(relativeTime)
+dayjs.locale('es') // Use Spanish locale globally
 
 const Home: NextPage = () => {
   const { data: books, refetch } = api.getBooks.useQuery()
@@ -179,12 +185,12 @@ const columns: GridColDef[] = [
   {
     field: 'author',
     headerName: 'Autor/a',
-    width: 280,
+    width: 250,
   },
   {
     field: 'genre',
     headerName: 'Género',
-    width: 190,
+    width: 170,
   },
   {
     field: 'editor',
@@ -194,12 +200,22 @@ const columns: GridColDef[] = [
   {
     field: 'location',
     headerName: 'Ubicación',
-    width: 220,
+    width: 180,
   },
   {
     field: 'currentlyWith',
-    headerName: 'Usuario actualmente con el libro',
-    width: 220,
+    headerName: 'Prestado a',
+    width: 180,
+  },
+    {
+    field: 'expectedReturn',
+    headerName: 'Fecha de devolución',
+    width: 180,
+    renderCell: (params) => {
+      const date = dayjs(params.value)
+      const isDue = date.isBefore(dayjs())
+      return <span>{isDue && '⚠️ '}{date.fromNow()}</span>
+    }
   },
   {
     field: 'reference',

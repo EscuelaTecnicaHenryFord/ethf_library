@@ -13,7 +13,11 @@ import DoNotDisturbOnIcon from '@mui/icons-material/DoNotDisturbOn';
 import CheckIcon from '@mui/icons-material/Check';
 import HelpIcon from '@mui/icons-material/Help';
 import BrokenImageIcon from '@mui/icons-material/BrokenImage';
+import { DatePicker } from '@mui/x-date-pickers';
+import dayjs from 'dayjs';
+import "dayjs/locale/es"; // Import Spanish locale
 
+dayjs.locale("es"); // Set global locale to Spanish
 interface Props {
     open: boolean
     handleClose: () => unknown
@@ -35,6 +39,7 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
     const [location, setLocation] = React.useState(book?.location || '')
     const [reference, setReference] = React.useState(book?.reference || '')
     const [currentlyWith, setCurrentlyWith] = React.useState(book?.currentlyWith || undefined)
+    const [returnDate, setReturnDate] = React.useState<number | undefined>(book?.expectedReturn?.getTime())
     const [status, setStatus] = React.useState(book?.status || 'active')
 
     const [error, setError] = React.useState('')
@@ -45,6 +50,23 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
     const { isAdmin } = useUserRole()
 
     const students = api.listStudents.useQuery()
+
+    const daysToReturnDate = returnDate ? Math.ceil((returnDate - Date.now()) / (1000 * 60 * 60 * 24)) : null
+
+    let fromNowReturnDateText = ''
+    if (daysToReturnDate !== null) {
+        if (daysToReturnDate === 0) {
+            fromNowReturnDateText = '[(hoy)]'
+        } else if (daysToReturnDate === 1) {
+            fromNowReturnDateText = '[(mañana)]'
+        } else {
+            fromNowReturnDateText = `[(en ${daysToReturnDate} días)]`
+        }
+
+        if (daysToReturnDate < 0) {
+            fromNowReturnDateText = `[(hace ${-daysToReturnDate} días)] ⚠️`
+        }
+    }
 
     function handleDelete() {
         if (!book) return
@@ -62,6 +84,20 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
             setError(err.message || '')
             setLoading(false)
         })
+    }
+
+    const currentYear = new Date().getFullYear()
+
+    function setStudent(matricula?: number) {
+        setCurrentlyWith(matricula ? `HF${matricula}` : undefined)
+        if (matricula && !returnDate) {
+            // 15 from now
+            const date = new Date()
+            date.setDate(date.getDate() + 15)
+            setReturnDate(date.getTime())
+        } else if (!matricula) {
+            setReturnDate(undefined)
+        }
     }
 
     return (
@@ -91,6 +127,7 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         location,
                         reference,
                         currentlyWith,
+                        expectedReturn: returnDate ? new Date(returnDate) : undefined,
                         status: status as RouterInputs['updateBook']['status'],
                     }).then(() => {
                         handleClose()
@@ -191,39 +228,55 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                         onChange={e => isAdmin ? setEditor(e.target.value) : undefined}
                         value={editor}
                     />
-                    <TextField
-                        margin="dense"
-                        id="location"
-                        label="Ubicación"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        onChange={e => isAdmin ? setLocation(e.target.value) : undefined}
-                        value={location}
-                    />
-                    <TextField
-                        margin="dense"
-                        id="reference"
-                        label="Refrencia"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        onChange={e => isAdmin ? setReference(e.target.value) : undefined}
-                        value={reference}
-                    />
-                    <div className='space-y-4 mt-4'>
-                        <FormControl fullWidth>
-                            <Autocomplete
+                    <div className='gap-2' style={{ display: 'grid', gridTemplateColumns: '1fr 2fr' }}>
+                        <div>
+                            <TextField
+                                margin="dense"
+                                id="location"
+                                label="Ubicación"
+                                type="text"
                                 fullWidth
-                                renderInput={(params) => <TextField {...params} label="Estudiante" />}
-                                options={students.data?.map(s => ({
-                                    label: `HF${s.matricula} | ${s.nombre} ${s.apellido}`,
-                                    value: s.matricula
-                                })) ?? []}
-                                onChange={(e, option) => isAdmin ? setCurrentlyWith(option?.value ? `HF${option.value}` : undefined) : undefined}
-                                value={currentlyWith ? { value: parseInt(currentlyWith?.substring(2)), label: currentlyWith } : undefined}
+                                variant="standard"
+                                onChange={e => isAdmin ? setLocation(e.target.value) : undefined}
+                                value={location}
                             />
-                        </FormControl>
+                        </div>
+                        <div>
+                            <TextField
+                                margin="dense"
+                                id="reference"
+                                label="Refrencia"
+                                type="text"
+                                fullWidth
+                                variant="standard"
+                                onChange={e => isAdmin ? setReference(e.target.value) : undefined}
+                                value={reference}
+                            />
+                        </div>
+                    </div>
+                    <div className='space-y-4 mt-4'>
+                        {book && <>
+                            <FormControl fullWidth>
+                                <Autocomplete
+                                    fullWidth
+                                    renderInput={(params) => <TextField {...params} label="Estudiante" />}
+                                    options={students.data?.map(s => ({
+                                        label: `${currentYear - s.ingreso - s.repite + 1}° | HF${s.matricula} | ${s.nombre} ${s.apellido}`,
+                                        value: s.matricula
+                                    })) ?? []}
+                                    isOptionEqualToValue={(option, value) => option.value === value.value}
+                                    onChange={(e, option) => isAdmin ? setStudent(option?.value) : undefined}
+                                    value={currentlyWith ? { value: parseInt(currentlyWith?.substring(2)), label: currentlyWith } : undefined}
+                                />
+                            </FormControl>
+                            {currentlyWith && <FormControl fullWidth>
+                                <DatePicker label="Fecha de devolución"
+                                    value={dayjs(returnDate)}
+                                    onChange={(value) => { setReturnDate(value?.valueOf()) }}
+                                    format={`dddd DD/MM/YYYY ${fromNowReturnDateText}`}
+                                />
+                            </FormControl>}
+                        </>}
                         <FormControl fullWidth>
                             <InputLabel id="book-status">Estado</InputLabel>
                             <Select
@@ -259,6 +312,7 @@ export default function BookDialog({ open, handleClose, book, onCompleted }: Pro
                                 </MenuItem>
                             </Select>
                         </FormControl>
+
                     </div>
                 </DialogContent>
                 <DialogActions>
